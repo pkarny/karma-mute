@@ -24,3 +24,6 @@ module.exports = function(config) {
     });
 };
 ```
+
+## Known issues
+Works only for the scripts that call console methods during first execution, won't work for functions that call it afterwards.
