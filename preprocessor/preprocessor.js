@@ -21,9 +21,6 @@ module.exports = function karmaMutePreprocessor () {
             let declarations = node.declarations,
                 i = declarations.length - 1;
 
-            console.log('TEST ' + declarations[i].type);
-            console.log('test ' + declarations[i].id.name);
-
             while(i > -1 && noConsoleVariableRedeclared) {
                 if (declarations[i].type === 'VariableDeclarator' && declarations[i].id.name === 'console') {
                     noConsoleVariableRedeclared = false;
@@ -44,7 +41,7 @@ module.exports = function karmaMutePreprocessor () {
 
         esprima.parseScript(content, {}, (node, meta) => {
             if (warnAboutConsoleDeclaration(node)) {
-                console.error('\'console\' variable was redeclared within the file: ' + file + '. Unexpected result may appear. Aborting...');
+                console.error('[karma-mute] \'console\' variable was redeclared within the file: ' + file + '. Unexpected result may appear. Aborting preprocessing for this file...');
                 consoleVariableRedeclared = true;
             } else if (isConsoleCall(node)) {
                 entries.push({

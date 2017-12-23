@@ -1,6 +1,6 @@
 {
   "name": "karma-mute",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Karma preprocessor to mute noisy libs and scripts",
   "main": "index.js",
   "scripts": {},
