@@ -1,6 +1,6 @@
 {
   "name": "karma-mute",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "Karma preprocessor to mute noisy libs and scripts",
   "main": "index.js",
   "scripts": {},
@@ -13,7 +13,9 @@
   ],
   "author": "Piotr Karny <github@webpx.pl>",
   "license": "MIT",
-  "dependencies": {},
+  "dependencies": {
+    "esprima": "^4.0.0"
+  },
   "devDependencies": {},
   "repository": {
     "type": "git",

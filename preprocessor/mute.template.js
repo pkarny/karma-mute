@@ -1,21 +1,20 @@
-// --- Mute all console methods --------------------------------------
 (function (console) {
     'use strict';
 
-    var mutedMethods = {},
+    var noopObject = {},
         noop = function () {};
 
-    if (console) {
-        // Iterate over methods
+    if (console && !window.__karma_mute_console) {
+        // Iterate over methods and build object with same methods changed to noop
         Object.keys(console).forEach(function (method) {
             if (typeof console[method] === 'function') {
-                mutedMethods[method] = console[method];
-                console[method] = noop;
+                noopObject[method] = noop;
             }
         });
 
-        window.__mutedConsoleMethods = mutedMethods;
+        window.__karma_mute_console = noopObject;
     }
+
 }(window.console));
 // -------------------------------------------------------------------
 

@@ -1,10 +1,71 @@
 const fs = require('fs');
+const esprima = require('esprima');
 const MUTE_TEMPLATE = fs.readFileSync(__dirname + '/mute.template.js', 'utf8');
-const UNMUTE_TEMPLATE = fs.readFileSync(__dirname + '/unmute.template.js', 'utf8');
+
+// Inspired by Esprima documentation
+// http://esprima.readthedocs.io/en/4.0/syntactic-analysis.html#example-console-calls-removal
 
 module.exports = function karmaMutePreprocessor () {
+    "use strict";
+
+    function isConsoleCall(node) {
+        return (node.type === 'CallExpression') &&
+            (node.callee.type === 'MemberExpression') &&
+            (node.callee.object.type === 'Identifier') &&
+            (node.callee.object.name === 'console');
+    }
+
+    function warnAboutConsoleDeclaration (node) {
+        let noConsoleVariableRedeclared = true;
+        if (node.type === 'VariableDeclaration') {
+            let declarations = node.declarations,
+                i = declarations.length - 1;
+
+            console.log('TEST ' + declarations[i].type);
+            console.log('test ' + declarations[i].id.name);
+
+            while(i > -1 && noConsoleVariableRedeclared) {
+                if (declarations[i].type === 'VariableDeclarator' && declarations[i].id.name === 'console') {
+                    noConsoleVariableRedeclared = false;
+                }
+
+                i --;
+            }
+
+            return !noConsoleVariableRedeclared;
+        }
+
+        return false;
+    }
 
     return function (content, file, done) {
-        done(MUTE_TEMPLATE + content + UNMUTE_TEMPLATE);
+        let entries = [],
+            consoleVariableRedeclared = false;
+
+        esprima.parseScript(content, {}, (node, meta) => {
+            if (warnAboutConsoleDeclaration(node)) {
+                console.error('\'console\' variable was redeclared within the file: ' + file + '. Unexpected result may appear. Aborting...');
+                consoleVariableRedeclared = true;
+            } else if (isConsoleCall(node)) {
+                entries.push({
+                    start: meta.start.offset,
+                    end: meta.end.offset
+                });
+            }
+        });
+
+        if (!consoleVariableRedeclared) {
+            entries.sort((a, b) => {
+                return b.end - a.end
+            }).forEach(n => {
+                content = content.slice(0, n.start) + content.slice(n.end);
+            });
+
+            content = content.replace(/window\.console|window\[(\s)?('|")console('|")(\s)?]/g, 'window.__karma_mute_console');
+
+            done(MUTE_TEMPLATE + content);
+        } else {
+            done(content);
+        }
     }
 };

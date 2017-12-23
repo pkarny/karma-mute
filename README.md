@@ -1,7 +1,8 @@
 # karma-mute
-Karma preprocessor to mute noisy libs and scripts
+Karma preprocessor to mute noisy libs and scripts.
 
-Replaces all `console` methods calls with noop functions.
+Removes all `console` methods calls from preprocessed files.
+Replaces any `window.console` occurrences with `noop`.
 
 ## Install
 ```bash
@@ -24,6 +25,3 @@ module.exports = function(config) {
     });
 };
 ```
-
-## Known issues
-Works only for the scripts that call console methods during first execution, won't work for functions that call it afterwards.
